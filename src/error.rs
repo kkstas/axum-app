@@ -5,6 +5,7 @@ pub type Result<T> = core::result::Result<T, Error>;
 #[derive(Debug)]
 pub enum Error {
     LoginFail,
+    AuthFailNoAuthTokenCookie,
 }
 
 impl axum::response::IntoResponse for Error {

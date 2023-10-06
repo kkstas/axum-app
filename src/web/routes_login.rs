@@ -1,4 +1,4 @@
-use crate::{Error, Result};
+use crate::{web::AUTH_TOKEN, Error, Result};
 use axum::{routing::post, Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -10,7 +10,8 @@ pub fn routes() -> Router {
 
 // max 1 body extractor per route
 async fn api_login(cookies: Cookies, payload: Json<LoginPayload>) -> Result<Json<Value>> {
-    println!("->> {:<12} - api_login", "HANDLER");
+    println!("->> {:<12} - api_login - payload: {payload:?}", "HANDLER");
+    println!("    {:<12} - cookies: {cookies:?}", "");
 
     // TODO: Implement real db/auth logic.
     if payload.username != "demo1" || payload.pwd != "welcome" {
@@ -18,7 +19,7 @@ async fn api_login(cookies: Cookies, payload: Json<LoginPayload>) -> Result<Json
     }
 
     // TODO: Set cookies
-    cookies.add(Cookie::new("cookie-name", "cookie-val"));
+    cookies.add(Cookie::new(AUTH_TOKEN, "user-1.exp.sign"));
 
     // Create the success body.
     let body = Json(json!({
