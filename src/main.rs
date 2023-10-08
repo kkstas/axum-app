@@ -1,4 +1,5 @@
 use axum::{middleware, response::Response, routing::get_service, Router};
+use model::ModelController;
 use std::net::SocketAddr;
 use tower_cookies::CookieManagerLayer;
 use tower_http::services::ServeDir;
@@ -10,13 +11,16 @@ mod model;
 mod web;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
+    let mc = ModelController::new().await?;
+
     // Router utworzony osobno, aby tylko tu działało auth
     let routes_apis =
         web::routes_data::routes().route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
 
     let routes_all = Router::new()
         .merge(web::routes_login::routes())
+        .nest("/api", web::routes_tickets::routes(mc.clone()))
         .nest("/api", routes_apis)
         .layer(middleware::map_response(main_response_mapper))
         .layer(CookieManagerLayer::new())
@@ -26,6 +30,7 @@ async fn main() {
         .serve(routes_all.into_make_service())
         .await
         .unwrap();
+    Ok(())
 }
 
 async fn main_response_mapper(res: Response) -> Response {
