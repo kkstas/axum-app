@@ -6,6 +6,8 @@ pub type Result<T> = core::result::Result<T, Error>;
 pub enum Error {
     LoginFail,
     AuthFailNoAuthTokenCookie,
+    AuthFailTokenWrongFormat,
+    TicetDeleteFailIdNotFound { id: u64 },
 }
 
 impl axum::response::IntoResponse for Error {

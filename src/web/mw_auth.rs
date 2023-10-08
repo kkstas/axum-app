@@ -1,5 +1,6 @@
 use crate::{Error, Result};
 use axum::{http::Request, middleware::Next, response::Response};
+// use lazy_regex::regex_captures;
 use tower_cookies::Cookies;
 
 use crate::web::AUTH_TOKEN;
@@ -16,3 +17,9 @@ pub async fn mw_require_auth<B>(
 
     Ok(next.run(req).await)
 }
+
+// fn parse_token(token: String) -> Result<(u64, String, String)> {
+//     let (_whole, user_id, exp, sign) = regex_captures!(r#"^user-(\d+)\.(.+)\.(.+)"#, &token)
+//         .ok_or(Error::AuthFailTokenWrongFormat)?;
+//     todo!()
+// }
