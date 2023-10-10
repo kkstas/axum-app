@@ -24,7 +24,7 @@ async fn http_tests() -> Result<()> {
         }),
     );
     req_create_ticket.await?.print().await?;
-    // hc.do_delete("/api/tickets/1").await?.print().await?;
+    // hc.do_delete("/api/tickets/1").await?.print().await?;;
     hc.do_get("/api/tickets").await?.print().await?;
 
     Ok(())
