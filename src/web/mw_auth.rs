@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use axum::body::Body;
 use axum::http::request::Parts;
 use axum::{extract::FromRequestParts, http::Request, middleware::Next, response::Response};
 use lazy_regex::regex_captures;
@@ -8,11 +9,7 @@ use crate::ctx::Ctx;
 use crate::web::AUTH_TOKEN;
 use crate::{Error, Result};
 
-pub async fn mw_require_auth<B>(
-    ctx: Result<Ctx>,
-    req: Request<B>,
-    next: Next<B>,
-) -> Result<Response> {
+pub async fn mw_require_auth(ctx: Result<Ctx>, req: Request<Body>, next: Next) -> Result<Response> {
     println!("->> {:<12} - mw_require_auth", "MIDDLEWARE");
 
     ctx?;
@@ -20,10 +17,10 @@ pub async fn mw_require_auth<B>(
     Ok(next.run(req).await)
 }
 
-pub async fn mw_ctx_resolver<B>(
+pub async fn mw_ctx_resolver(
     cookies: Cookies,
-    mut req: Request<B>,
-    next: Next<B>,
+    mut req: Request<Body>,
+    next: Next,
 ) -> Result<Response> {
     println!("->> {:<12} - mw_ctx_resolver", "MIDDLEWARE");
 
@@ -42,7 +39,7 @@ pub async fn mw_ctx_resolver<B>(
 
     // remove the cookie if something went wrong other than NoAuthTokenCookie
     if result_ctx.is_err() && !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie)) {
-        cookies.remove(Cookie::named(AUTH_TOKEN))
+        cookies.remove(Cookie::from(AUTH_TOKEN))
     }
     // Store the ctx_result in the request extension
     req.extensions_mut().insert(result_ctx);
